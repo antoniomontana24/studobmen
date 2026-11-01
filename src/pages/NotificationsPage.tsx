@@ -4,8 +4,7 @@ import { useChat } from '../context/ChatContext';
 import { useNotifications } from '../context/NotificationsContext';
 import { timeAgo } from '../utils/date';
 import type { NotificationType } from '../types';
-
-const ICON: Record<NotificationType, string> = { message: '💬', booking: '⏳', purchase: '✅', moderation: '🛡️', system: '🔔' };
+import { Icon, NOTIFICATION_ICON } from '../components/Icon';
 const FILTERS: [NotificationType | 'all', string][] = [['all', 'Все'], ['message', 'Сообщения'], ['booking', 'Брони'], ['purchase', 'Покупки'], ['moderation', 'Модерация'], ['system', 'Система']];
 
 export default function NotificationsPage() {
@@ -27,7 +26,7 @@ export default function NotificationsPage() {
       <div className="card__row"><h1 className="cart-title">Уведомления {unread > 0 && <span className="tag tag--free">{unread} новых</span>}</h1>
         <div className="ml-card__actions">
           {unread > 0 && <button className="btn btn--ghost" onClick={markAllRead}>Прочитать все</button>}
-          {items.length > 0 && <button className="link link--danger" onClick={clear}>Очистить ленту</button>}
+          {items.length > 0 && <button className="link link--danger" onClick={clear}><Icon name="trash" size={15} />Очистить ленту</button>}
         </div></div>
 
       <div className="pager-tabs">{FILTERS.map(([v, l]) => (
@@ -37,7 +36,7 @@ export default function NotificationsPage() {
       <div className="notif-list">
         {rows.map((n) => (
           <button key={n.id} className={`notif ${n.read ? '' : 'is-new'}`} onClick={() => onItem(n.id, n.threadId, n.link)}>
-            <span className="notif__ico" aria-hidden>{ICON[n.type]}</span>
+            <span className="notif__ico" aria-hidden><Icon name={NOTIFICATION_ICON[n.type]} size={20} /></span>
             <span className="notif__txt"><b>{n.title}</b><small>{n.body}</small><time>{timeAgo(n.createdAt)}</time></span>
             {!n.read && <span className="notif__dot" />}
           </button>

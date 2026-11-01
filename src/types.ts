@@ -95,3 +95,11 @@ export interface CompletedDeal {
 }
 export interface CancelledBooking { id: string; when: string; title: string; reason: string }
 
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  institute: string;
+  dorm: string;
+  room: string;
+}

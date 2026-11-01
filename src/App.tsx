@@ -8,6 +8,8 @@ import CreateListingPage from './pages/CreateListingPage';
 import ProfilePage from './pages/ProfilePage';
 import ChatsPage from './pages/ChatsPage'; 
 import NotificationsPage from './pages/NotificationsPage';
+import LoginPage from './pages/LoginPage';
+import { RequireAuth } from './context/AuthContext';
 
 function CartRoute() {
   const nav = useNavigate();
@@ -17,6 +19,8 @@ function CartRoute() {
 export default function App() {
   return (
     <Routes>
+      <Route path="login" element={<LoginPage />} />
+      <Route element={<RequireAuth />}>
       <Route element={<Layout />}>
         <Route index element={<CatalogPage />} />
         <Route path="cart" element={<CartRoute />} />
@@ -27,6 +31,7 @@ export default function App() {
         <Route path="profile" element={<ProfilePage />} />
         <Route path="profile/new" element={<CreateListingPage />} />
         <Route path="*" element={<p className="state">Страница не найдена</p>} />
+      </Route>
       </Route>
     </Routes>
   );

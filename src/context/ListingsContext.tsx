@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { CURRENT_USER, MOCK } from '../data/mock';
+import { MOCK } from '../data/mock';
+import { useAuth } from './AuthContext';
 import type { Listing, NewListingInput, Status } from '../types';
 import { useNotifications } from './NotificationsContext'; 
 import { uid } from '../utils/id';
@@ -25,6 +26,7 @@ function load(): Delta {
 
 export function ListingsProvider({ children }: { children: ReactNode }) {
   const notif = useNotifications(); 
+  const { user } = useAuth();
   const [delta, setDelta] = useState<Delta>(load);
 
   useEffect(() => {
@@ -38,7 +40,7 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
     return [...base, ...delta.created];
   }, [delta]);
 
-  const mine = useMemo(() => all.filter((l) => l.seller.name === CURRENT_USER.name), [all]);
+  const mine = useMemo(() => (user ? all.filter((l) => l.seller.name === user.name) : []), [all, user]);
   const update = (id: number, patch: Partial<Listing>) =>
       setDelta((d) => {
         if (d.created.some((c) => c.id === id))
@@ -50,9 +52,10 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
 
 
   const add = (input: NewListingInput): number => {
+  if (!user) return -1; // доступно только после входа
   const id = Date.now();
   const listing: Listing = { ...input, id, createdAt: Date.now(),
-    seller: { name: CURRENT_USER.name, rating: 4.85, reviews: 14, institute: CURRENT_USER.institute } };
+    seller: { name: user.name, rating: 4.85, reviews: 14, institute: user.institute } };
   setDelta((d) => ({ ...d, created: [listing, ...d.created] }));
   notif.push({ type: 'moderation',
     title: input.status === 'draft' ? 'Черновик сохранён' : 'Отправлено на модерацию',

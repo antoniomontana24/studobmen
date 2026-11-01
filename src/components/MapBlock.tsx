@@ -1,3 +1,5 @@
+import { Icon } from './Icon';
+
 interface Props {
   dorms: string[];
   walkMinutes?: number;
@@ -8,7 +10,7 @@ export function MapBlock({ dorms, walkMinutes = 6 }: Props) {
   return (
     <section className="mapblock">
       <div className="card__row">
-        <h2>Карта передачи</h2>
+        <h2 className="iconline"><Icon name="pin" size={18} />Карта передачи</h2>
         <small>{dorms.join(' · ')}</small>
       </div>
       <div className="map__canvas" role="img" aria-label="Схема расположения пунктов передачи">

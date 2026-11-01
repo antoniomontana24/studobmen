@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { createOrder } from '../api/orders';
 import { useCart } from '../context/CartContext';
-import { CURRENT_USER } from '../data/mock';
+import { useUser } from '../context/AuthContext';
+import { Icon, Placeholder, Rating } from '../components/Icon';
 import { useListings } from '../hooks/useListings';
 import { DEFAULT_FILTERS, type Listing } from '../types';
 import { money } from '../utils/format';
@@ -21,6 +22,7 @@ type Meeting = { point: string; interval: string };
 const DEFAULT_MEETING: Meeting = { point: 'hall', interval: 'Сегодня после пар (18:30 – 20:00)' };
 
 export function CartPage({ onBack }: { onBack: () => void }) {
+  const user = useUser();
   const cart = useCart();
   const bookings = useBookings();
   const favorites = useFavorites();
@@ -82,20 +84,20 @@ export function CartPage({ onBack }: { onBack: () => void }) {
                 <header className="group__head">
                   <i className="avatar">{seller[0]}</i>
                   <div><strong>{seller}</strong> <span className="tag">{s.institute}</span><br />
-                    <small>★ {s.rating.toFixed(1)} ({s.reviews} сделок) · {lines[0].dorm}</small></div>
-                  <button className="btn btn--ghost">Написать</button>
+                    <Rating value={s.rating} suffix={<small>({s.reviews} сделок) · {lines[0].dorm}</small>} /></div>
+                  <button className="btn btn--outline"><Icon name="message" size={16} />Написать</button>
                 </header>
 
                 {lines.map((l) => (
                   <div className="line" key={l.id}>
                     <input type="checkbox" checked={cart.selected.has(l.id)} onChange={() => cart.toggle(l.id)} aria-label={`Выбрать: ${l.title}`} />
-                    <div className="line__img">{l.image ? <img src={l.image} alt="" /> : '📦'}</div>
+                    <div className="line__img">{l.image ? <img src={l.image} alt="" /> : <Placeholder size={28} />}</div>
                     <div className="line__main">
                       <div className="card__row"><h3 className="card__title">{l.title}</h3><strong className="price">{money(l.price)}</strong></div>
                       <p className="muted">{l.description}</p>
                       <div className="line__actions">
-                        <button className="link" onClick={() => favorites.toggle(l)}>{favorites.has(l.id) ? '♥ В избранном' : '♡ В избранное'}</button>
-                        <button className="link" onClick={() => cart.remove(l.id)}>Удалить</button>
+                        <button className="link" onClick={() => favorites.toggle(l)}><Icon name="heart" size={15} filled={favorites.has(l.id)} />{favorites.has(l.id) ? 'В избранном' : 'В избранное'}</button>
+                        <button className="link" onClick={() => cart.remove(l.id)}><Icon name="trash" size={15} />Удалить</button>
                       </div>
                     </div>
                   </div>
@@ -132,14 +134,14 @@ export function CartPage({ onBack }: { onBack: () => void }) {
             <dt>Комиссия сервиса</dt><dd className="ok">0 ₽ (Бесплатно)</dd>
           </dl>
           <div className="total"><span>Итого к оплате:<br /><small>при личной встрече</small></span><strong>{money(total)}</strong></div>
-          <div className="profile"><small>ВАШ ПРОФИЛЬ (TPU ID)</small><br /><b>{CURRENT_USER.name}</b><br />
-            <small>{CURRENT_USER.institute} • {CURRENT_USER.dorm}, комн. {CURRENT_USER.room}</small></div>
+          <div className="cart-profile"><small>ВАШ ПРОФИЛЬ (ТПУ)</small><br /><b>{user.name}</b><br />
+            <small>{user.institute} • {user.dorm}, комн. {user.room}</small></div>
           <label>Телефон / Telegram для связи<input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+7 (999) 000-00-00" /></label>
           <label>Комментарий продавцам<textarea rows={3} value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Например: подойду к вахте в 18:30, захвачу мелочь без сдачи..." /></label>
           
               {cart.items.length > 1 && (
         <button className="link" onClick={() => cart.removeMany(cart.items.map((i) => i.id))}>
-          Очистить корзину
+          <Icon name="trash" size={15} />Очистить корзину
         </button>
       )}
 
@@ -149,7 +151,7 @@ export function CartPage({ onBack }: { onBack: () => void }) {
           </button>
           {status === 'error' && <p className="state--err">Не удалось отправить заказ. Попробуйте ещё раз.</p>}
           <p className="muted"><small>Продавцы получат уведомление. Вещи будут заморожены за вами на 24 часа.</small></p>
-          <button className="link" onClick={onBack}>← Вернуться к покупкам в каталоге</button>
+          <button className="link" onClick={onBack}><Icon name="arrowLeft" size={15} />Вернуться к покупкам в каталоге</button>
         </aside>
         <MapBlock dorms={dorms} />
         </div>
@@ -164,7 +166,7 @@ export function CartPage({ onBack }: { onBack: () => void }) {
                 <div className="card__body">
                   <strong className="price">{money(l.price)}</strong>
                   <h3 className="card__title">{l.title}</h3>
-                  <div className="card__row"><small>{shortDorm(l.dorm)}</small><button className="btn btn--ghost" style={{ flex: 'none' }} aria-label={`Добавить: ${l.title}`} onClick={() => cart.add(l)}>+</button></div>
+                  <div className="card__row"><small>{shortDorm(l.dorm)}</small><button className="btn btn--outline" style={{ flex: 'none' }} aria-label={`Добавить: ${l.title}`} onClick={() => cart.add(l)}><Icon name="plus" size={16} /></button></div>
                 </div>
               </article>
             ))}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CURRENT_USER } from '../data/mock';
+import { useAuth, useUser } from '../context/AuthContext';
+import { Icon } from '../components/Icon';
 import { useFavorites } from '../context/FavoriteContext';
 import { useListingsData } from '../context/ListingsContext';
 import { ListingCard } from '../components/ListingCard';
@@ -11,6 +12,8 @@ type Tab = 'overview' | 'listings' | 'orders' | 'favorites' | 'settings';
 const NAV: [Tab, string][] = [['overview', 'Главное'], ['listings', 'Мои объявления'], ['orders', 'Заказы и бронирования'], ['favorites', 'Избранное'], ['settings', 'Настройки профиля']];
 
 export default function ProfilePage() {
+  const user = useUser();
+  const { logout } = useAuth();
   const [tab, setTab] = useState<Tab>('overview');
   const fav = useFavorites();
   const { mine } = useListingsData();
@@ -23,8 +26,8 @@ export default function ProfilePage() {
       <div className="profile">
         <aside className="profile__nav">
           <div className="profile__me">
-            <i className="avatar avatar--lg">{CURRENT_USER.name[0]}</i>
-            <div><strong>{CURRENT_USER.name}</strong><br /><small>{CURRENT_USER.institute} · {CURRENT_USER.dorm}, комн. {CURRENT_USER.room}</small></div>
+            <i className="avatar avatar--lg">{user.name[0]}</i>
+            <div><strong>{user.name}</strong><br /><small>{user.institute} · {user.dorm}, комн. {user.room}</small></div>
           </div>
           <div className="profile__stats">
             <span><b>4.85</b><small>рейтинг</small></span>
@@ -37,14 +40,15 @@ export default function ProfilePage() {
               {l}{v === 'favorites' && ` (${fav.items.length})`}{v === 'listings' && ` (${mine.length})`}
             </button>))}
           </nav>
-          <Link className="btn btn--green" to="/profile/new">+ Подать объявление</Link>
+          <Link className="btn btn--green" to="/profile/new"><Icon name="plus" size={18} />Подать объявление</Link>
+          <button className="btn btn--outline" onClick={logout}><Icon name="logOut" size={16} />Выйти</button>
         </aside>
 
         <section className="profile__content">
           {tab === 'overview' && (
             <div className="panel">
               <h2>Обзор</h2>
-              <p className="muted">Верифицировано по аккаунту TPU.RU · {CURRENT_USER.name.split(' ')[0]} {CURRENT_USER.name.split(' ')[1]?.[0]}., {CURRENT_USER.institute}.</p>
+              <p className="muted">Вход выполнен через аккаунт ТПУ · {user.name.split(' ')[0]} {user.name.split(' ')[1]?.[0]}., {user.institute}.</p>
               <div className="profile__quick">
                 <button className="btn btn--ghost" onClick={() => setTab('listings')}>Мои объявления ({mine.length})</button>
                 <button className="btn btn--ghost" onClick={() => setTab('orders')}>Заказы и брони</button>
@@ -60,9 +64,9 @@ export default function ProfilePage() {
           {tab === 'settings' && (
             <div className="panel form">
               <h2>Настройки профиля</h2>
-              <label className="field">Имя<input defaultValue={CURRENT_USER.name} /></label>
-              <label className="field">Общежитие<select defaultValue={CURRENT_USER.dorm}><option>{CURRENT_USER.dorm}</option></select></label>
-              <label className="field">Комната<input defaultValue={CURRENT_USER.room} /></label>
+              <label className="field">Имя<input defaultValue={user.name} /></label>
+              <label className="field">Общежитие<select defaultValue={user.dorm}><option>{user.dorm}</option></select></label>
+              <label className="field">Комната<input defaultValue={user.room} /></label>
               <button className="btn btn--green" onClick={() => alert('Сохранено (демо)')}>Сохранить</button>
             </div>
           )}

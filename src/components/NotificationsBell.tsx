@@ -3,9 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useChat } from '../context/ChatContext';
 import { useNotifications } from '../context/NotificationsContext';
 import { timeAgo } from '../utils/date';
-import type { NotificationType } from '../types';
-
-const ICON: Record<NotificationType, string> = { message: '💬', booking: '⏳', purchase: '✅', moderation: '🛡️', system: '🔔' };
+import { Icon, NOTIFICATION_ICON } from './Icon';
 
 export function NotificationBell() {
   const { items, unread, markRead, markAllRead } = useNotifications();
@@ -21,8 +19,8 @@ export function NotificationBell() {
 
   return (
     <div className="bell-wrap">
-      <button className="btn btn--ghost cart-btn bell" aria-label="Уведомления" onClick={() => setOpen((o) => !o)}>
-        🔔 {unread > 0 && <span className="bell__dot">{unread}</span>}
+      <button className="iconbtn bell" aria-label="Уведомления" title="Уведомления" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+        <Icon name="bell" />{unread > 0 && <span className="count">{unread}</span>}
       </button>
       {open && (
         <>
@@ -33,12 +31,12 @@ export function NotificationBell() {
             {items.length === 0 && <p className="state" style={{ padding: 16 }}>Пока тихо.</p>}
             {items.slice(0, 6).map((n) => (
               <button key={n.id} className={`bell__item ${n.read ? '' : 'is-new'}`} onClick={() => onItem(n.id, n.threadId, n.link)}>
-                <span className="bell__ico" aria-hidden>{ICON[n.type]}</span>
+                <span className="bell__ico" aria-hidden><Icon name={NOTIFICATION_ICON[n.type]} size={18} /></span>
                 <span className="bell__txt"><b>{n.title}</b><small>{n.body}</small><time>{timeAgo(n.createdAt)}</time></span>
                 {!n.read && <span className="bell__unread" />}
               </button>
             ))}
-            <button className="link bell__all" onClick={() => { setOpen(false); nav('/notifications'); }}>Показать все →</button>
+            <button className="link bell__all" onClick={() => { setOpen(false); nav('/notifications'); }}>Показать все<Icon name="arrowRight" size={15} /></button>
           </div>
         </>
       )}

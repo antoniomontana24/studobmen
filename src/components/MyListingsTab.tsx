@@ -3,6 +3,7 @@ import { useListingsData } from '../context/ListingsContext';
 import { money } from '../utils/format';
 import { timeAgo } from '../utils/date';
 import type { Listing, Status } from '../types';
+import { Icon, Placeholder } from './Icon';
 
 const BADGE: Record<Status, [string, string]> = {
   available: ['АКТИВНО', 'badge--active'],
@@ -21,7 +22,7 @@ function Row({ l }: { l: Listing }) {
 
   return (
     <article className="ml-card">
-      <div className="ml-card__img">{l.image ? <img src={l.image} alt="" /> : '📦'}<span className={`badge ${cls}`}>{label}</span></div>
+      <div className="ml-card__img">{l.image ? <img src={l.image} alt="" /> : <Placeholder size={28} />}<span className={`badge ${cls}`}>{label}</span></div>
       <div className="ml-card__main">
         <div className="card__row"><Link to={`/listing/${l.id}`} className="plain"><h3 className="card__title">{l.title}</h3></Link>
           <strong className="price">{l.price === 0 ? '0 ₽' : money(l.price)}</strong></div>
@@ -36,7 +37,7 @@ function Row({ l }: { l: Listing }) {
           </>}
           {l.status === 'available' && <button className="btn btn--ghost" onClick={() => ctx.updateStatus(l.id, 'draft')}>Снять с публикации</button>}
           {l.status === 'reserved' && <button className="btn btn--ghost" onClick={() => ctx.updateStatus(l.id, 'available')}>Отменить бронь</button>}
-          <button className="link link--danger" onClick={() => ctx.remove(l.id)}>Удалить</button>
+          <button className="link link--danger" onClick={() => ctx.remove(l.id)}><Icon name="trash" size={15} />Удалить</button>
         </div>
       </div>
     </article>

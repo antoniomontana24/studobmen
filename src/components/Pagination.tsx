@@ -1,3 +1,5 @@
+import { Icon } from './Icon';
+
 interface Props { page: number; total: number; pageSize: number; onPage: (p: number) => void }
 
 export function Pagination({ page, total, pageSize, onPage }: Props) {
@@ -7,11 +9,11 @@ export function Pagination({ page, total, pageSize, onPage }: Props) {
     <div className="pager">
       <span>Показано {from}–{Math.min(page * pageSize, total)} из {total} объявлений</span>
       <nav aria-label="Страницы">
-        <button disabled={page <= 1} onClick={() => onPage(page - 1)} aria-label="Назад">‹</button>
+        <button disabled={page <= 1} onClick={() => onPage(page - 1)} aria-label="Назад"><Icon name="chevronLeft" size={16} /></button>
         {Array.from({ length: pages }, (_, i) => i + 1).map((p) => (
           <button key={p} className={p === page ? 'is-active' : ''} onClick={() => onPage(p)}>{p}</button>
         ))}
-        <button disabled={page >= pages} onClick={() => onPage(page + 1)} aria-label="Вперёд">›</button>
+        <button disabled={page >= pages} onClick={() => onPage(page + 1)} aria-label="Вперёд"><Icon name="chevronRight" size={16} /></button>
       </nav>
     </div>
   );

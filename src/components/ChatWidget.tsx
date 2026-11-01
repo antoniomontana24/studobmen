@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useChat } from '../context/ChatContext';
 import { money } from '../utils/format';
+import { Icon, Placeholder } from './Icon';
 
 export function ChatWidget() {
   const { threads, activeId, typingId, close, send } = useChat();
@@ -17,10 +18,10 @@ export function ChatWidget() {
     <section className="chatw" role="dialog" aria-label={`Чат с ${t.sellerName}`}>
       <header className="chatw__head">
         <div className="chatw__item">
-          <div className="chatw__thumb">{t.listingImage ? <img src={t.listingImage} alt="" /> : '📦'}</div>
+          <div className="chatw__thumb">{t.listingImage ? <img src={t.listingImage} alt="" /> : <Placeholder size={20} />}</div>
           <div><strong>{t.listingTitle}</strong><br /><small>{money(t.listingPrice)} · {t.sellerName}</small></div>
         </div>
-        <button className="chatw__x" onClick={close} aria-label="Закрыть чат">✕</button>
+        <button className="chatw__x" onClick={close} aria-label="Закрыть чат"><Icon name="x" size={18} /></button>
       </header>
 
       <div className="chatw__log">
@@ -37,7 +38,7 @@ export function ChatWidget() {
       <footer className="chatw__foot">
         <input value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && submit()}
           placeholder="Сообщение продавцу…" aria-label="Текст сообщения" />
-        <button className="btn btn--green" onClick={submit} disabled={!text.trim()}>➤</button>
+        <button className="btn btn--green" onClick={submit} disabled={!text.trim()} aria-label="Отправить"><Icon name="send" size={18} /></button>
       </footer>
     </section>
   );

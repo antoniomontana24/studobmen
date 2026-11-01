@@ -1,5 +1,7 @@
 import { CATEGORIES, DORMS } from '../data/mock';
+import { useState } from 'react';
 import type { Condition, Filters, OfferType } from '../types';
+import { Icon } from './Icon';
 
 interface Props { filters: Filters; onChange: (patch: Partial<Filters>) => void; onReset: () => void }
 
@@ -9,12 +11,15 @@ const CONDITIONS: [Condition, string][] = [['new', 'Новое / Как из м�
 const toggle = <T,>(list: T[], v: T) => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
 
 export function FilterSidebar({ filters: f, onChange, onReset }: Props) {
+  const [open, setOpen] = useState(false); // на телефоне панель свёрнута, на десктопе игнорируется
   return (
-    <aside className="filters">
+    <aside className={`filters ${open ? 'is-open' : ''}`}>
       <div className="filters__head">
         <h2>Фильтры</h2>
-        <button className="link" onClick={onReset}>Сбросить все</button>
+        <button className="link filters__reset" onClick={onReset}>Сбросить все</button>
+        <button className="link filters__toggle" aria-expanded={open} onClick={() => setOpen((o) => !o)}>{open ? 'Свернуть' : 'Показать'}<Icon name={open ? 'x' : 'chevronRight'} size={15} /></button>
       </div>
+      <div className="filters__body">
 
       <fieldset>
         <legend>Общежитие</legend>
@@ -64,6 +69,7 @@ export function FilterSidebar({ filters: f, onChange, onReset }: Props) {
         <legend>Статус сделки</legend>
         <label><input type="checkbox" checked={f.onlyAvailable} onChange={(e) => onChange({ onlyAvailable: e.target.checked })} /> Без забронированных</label>
       </fieldset>
+      </div>
     </aside>
   );
 }

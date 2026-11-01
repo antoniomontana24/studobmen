@@ -1,11 +1,12 @@
 import { useState } from 'react';
+import { Placeholder } from './Icon';
 
 export function Gallery({ images, dorm }: { images: string[]; dorm: string }) {
   const [i, setI] = useState(0);
   return (
     <section className="gallery">
       <div className="gallery__main">
-        {images[i] ? <img src={images[i]} alt="" /> : <span aria-hidden>📦</span>}
+        {images[i] ? <img src={images[i]} alt="" /> : <Placeholder size={64} />}
         <span className="chip">{dorm}</span>
         {images.length > 0 && <span className="gallery__count">{images.length} фото</span>}
       </div>

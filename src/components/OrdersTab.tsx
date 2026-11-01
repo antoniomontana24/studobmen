@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useBookings } from '../context/BookingsContext';
 import { useChat } from '../context/ChatContext';
 import { money } from '../utils/format';
+import { Icon, Placeholder } from './Icon';
 
 const STEPS = ['Бронь создана', 'Подтверждено продавцом', 'Встреча', 'Тест и расчёт', 'Завершение'];
 const EXTEND = [0, 2, 4, 6, 12, 24];
@@ -47,8 +48,8 @@ export function OrdersTab() {
       {showB && bookings.map((b) => (
         <section className="booking" key={b.id}>
           <div className="card__row"><h2>Активная бронь #{b.id}</h2><span className="badge badge--hold">удержание без предоплаты</span></div>
-          <div className="booking__timer">⏳ <b><Countdown target={b.expiresAt} /></b> <small>до завершения брони</small></div>
-          <div className="booking__item"><span aria-hidden>📦</span>
+          <div className="booking__timer"><Icon name="clock" size={18} /> <b><Countdown target={b.expiresAt} /></b> <small>до завершения брони</small></div>
+          <div className="booking__item"><Placeholder size={28} />
             <div><strong>{b.title}</strong><br /><small>{b.sku} · {b.dorm.split(' (')[0]} · оплата на месте</small></div>
             <strong className="price">{money(b.price)}</strong></div>
           <ol className="steps">{STEPS.map((s, i) => <li key={s} className={i <= 2 ? 'is-done' : i === 3 ? 'is-current' : ''}><b>{i + 1}.</b> {s}</li>)}</ol>
@@ -84,7 +85,7 @@ export function OrdersTab() {
           <article className="purchase" key={p.id}>
             <div className="card__row"><div><strong>{p.title}</strong><br /><small>{p.when} · #{p.id} · {p.counterparty}</small></div>
               <strong className="price">{p.price === 0 ? '0 ₽' : money(p.price)}</strong></div>
-            {p.review ? <span className="tag tag--free">Отзыв опубликован ★ {p.review.toFixed(1)}</span>
+            {p.review ? <span className="tag tag--free"><span className="iconline">Отзыв опубликован <Icon name="star" size={13} filled />{p.review.toFixed(1)}</span></span>
                       : <button className="btn btn--ghost">Оставить отзыв</button>}
           </article>))}</>)}
 

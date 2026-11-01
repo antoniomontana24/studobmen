@@ -7,6 +7,7 @@ import { Gallery } from '../components/Gallery';
 import { Reviews } from '../components/Reviews';
 import { SellerCard } from '../components/SellerCard';
 import { Specs } from '../components/Specs';
+import { Icon } from '../components/Icon';
 import '../styles/listing.css';
 
 export default function ListingPage() {
@@ -32,7 +33,7 @@ useEffect(() => {
       <div className="detail">
         <div className="detail__main">
           <Gallery images={l.images} dorm={l.dorm} />
-          <div className="moderation"><b>Проверено AI-модератором ТПУ</b><br /><small>{l.moderation}</small></div>
+          <div className="moderation"><b className="iconline"><Icon name="shield" size={16} />Проверено AI-модератором ТПУ</b><br /><small>{l.moderation}</small></div>
           <Specs specs={l.specs} />
           <section className="panel">
             <h2>Описание от продавца</h2>

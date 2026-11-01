@@ -9,10 +9,12 @@ import { ListingsProvider } from './context/ListingsContext';
 import { NotificationsProvider } from './context/NotificationsContext';
 import { BookingsProvider } from './context/BookingsContext';
 import { ChatProvider } from './context/ChatContext';
+import { AuthProvider } from './context/AuthContext';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter basename="/studobmen">
+      <AuthProvider>
       <CartProvider>
         <FavoritesProvider>
           <NotificationsProvider>
@@ -26,6 +28,7 @@ createRoot(document.getElementById('root')!).render(
           </NotificationsProvider>
         </FavoritesProvider>
       </CartProvider>
+      </AuthProvider>
     </BrowserRouter>
   </StrictMode>,
 );

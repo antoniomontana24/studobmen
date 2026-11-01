@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CATEGORIES, CURRENT_USER, DORMS } from '../data/mock';
+import { CATEGORIES, DORMS } from '../data/mock';
+import { useUser } from '../context/AuthContext';
 import { useListingsData } from '../context/ListingsContext';
 import type { Condition, Listing, NewListingInput, OfferType, Status } from '../types';
 
@@ -10,6 +11,7 @@ const CONDS: [Condition, string][] = [['new', 'Новое'], ['excellent', 'От
 interface Props { initial?: Listing }
 
 export function CreateListingForm({ initial }: Props) {
+  const user = useUser();
   const ctx = useListingsData();
   const nav = useNavigate();
   const editing = !!initial;
@@ -98,11 +100,11 @@ export function CreateListingForm({ initial }: Props) {
       )}
 
       <div className="form__actions">
-        <button className="btn btn--ghost" onClick={() => nav(-1)}>Отмена</button>
-        <button className="btn btn--ghost" disabled={checked} onClick={() => submit('draft')}>Сохранить черновик</button>
+        <button className="btn btn--outline" onClick={() => nav(-1)}>Отмена</button>
+        <button className="btn btn--outline" disabled={checked} onClick={() => submit('draft')}>Сохранить черновик</button>
         <button className="btn btn--green" disabled={checked} onClick={() => submit('moderation')}>Опубликовать в кампусе</button>
       </div>
-      <p className="muted"><small>Публикация доступна авторизованным жителям кампуса ({CURRENT_USER.dorm}).</small></p>
+      <p className="muted"><small>Публикация доступна авторизованным жителям кампуса ({user.dorm}).</small></p>
     </section>
   );
 }

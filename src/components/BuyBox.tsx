@@ -4,6 +4,7 @@ import { useFavorites } from '../context/FavoriteContext';
 import { money } from '../utils/format';
 import type { ListingDetails } from '../api/listingDetails';
 import { useChat } from '../context/ChatContext';
+import { Icon } from './Icon';
 
 export function BuyBox({ l }: { l: ListingDetails }) {
   const chat = useChat();
@@ -25,19 +26,21 @@ export function BuyBox({ l }: { l: ListingDetails }) {
       <div className="buybox__price"><strong>{money(l.price)}</strong> <span className="tag">Без комиссии</span></div>
       <p className="muted"><small>Оплата переводом через СБП или наличными при получении</small></p>
       <button className="btn btn--green btn--wide" disabled={reserved} onClick={checkout}>Оформить заказ</button>
-      <button className="btn btn--ghost btn--wide" disabled={reserved} onClick={checkout}>Забронировать на 24 часа (без предоплаты)</button>
+      <button className="btn btn--outline btn--wide" disabled={reserved} onClick={checkout}>Забронировать на 24 часа (без предоплаты)</button>
       <div className="buybox__row">
-        <button className="btn btn--ghost" disabled={inCart} onClick={() => cart.add(l)}>{inCart ? 'В корзине' : 'В корзину'}</button>
+        {inCart
+          ? <button className="btn btn--remove" onClick={() => cart.remove(l.id)}><Icon name="x" size={16} />Убрать из корзины</button>
+          : <button className="btn btn--outline" disabled={reserved} onClick={() => cart.add(l)}><Icon name="cart" size={16} />В корзину</button>}
         <button
-          className="btn btn--ghost"
+          className={`btn btn--outline ${inFav ? 'is-active' : ''}`}
           aria-pressed={inFav}
           onClick={() => favorites.toggle(l)}
         >
-          {inFav ? '♥ В избранном' : '♡ В избранное'}
+          <Icon name="heart" size={16} filled={inFav} />{inFav ? 'В избранном' : 'В избранное'}
         </button>
       </div>
-      <button className="btn btn--dark btn--wide" onClick={() => chat.openForListing(l)}>Написать продавцу в чат ТПУ</button>
-      <div className="buybox__row"><small>Ответ за 5 минут</small><small>Гарантия возврата 3 дня</small></div>
+      <button className="btn btn--dark btn--wide" onClick={() => chat.openForListing(l)}><Icon name="message" size={16} />Написать продавцу в чат ТПУ</button>
+      <div className="buybox__row"><small className="iconline"><Icon name="clock" size={14} />Ответ за 5 минут</small><small className="iconline"><Icon name="shield" size={14} />Гарантия возврата 3 дня</small></div>
     </section>
   );
 }
