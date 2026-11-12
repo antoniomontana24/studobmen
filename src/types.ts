@@ -22,6 +22,7 @@ export interface Listing {
   status: Status;
   createdAt: number;
   image?: string;
+  images?: string[];
   seller: Seller;
 }
 
@@ -53,6 +54,7 @@ export interface NewListingInput {
   category: string;
   dorm: string;
   image?: string;
+  images?: string[];
   status: Status;
 }
 

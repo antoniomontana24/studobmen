@@ -26,7 +26,8 @@ export default function LoginPage() {
 
   if (user) return <Navigate to={from} replace />;
 
-  const idErr = touched ? validateLogin(id) : null;
+  // Ошибка логина показывается сразу, как только в поле что-то введено (или после отправки)
+  const idErr = touched || id ? validateLogin(id) : null;
   const pwErr = touched ? validatePassword(password) : null;
 
   async function submit(e: FormEvent) {
@@ -36,7 +37,7 @@ export default function LoginPage() {
     if (validateLogin(id) || validatePassword(password)) return;
     setBusy(true);
     try {
-      await login(id.trim(), password, remember);
+      await login(id, password, remember);
       nav(from, { replace: true });
     } catch (err) {
       setError(err instanceof AuthError && err.kind === 'invalid'
@@ -66,14 +67,14 @@ export default function LoginPage() {
 
           {error && <p className="auth__err" role="alert"><Icon name="alert" size={18} />{error}</p>}
 
-          <label className="field">Логин или почта @tpu.ru
+          <label className="field">Логин ТПУ
             <span className="input">
               <Icon name="user" size={18} />
               <input value={id} onChange={(e) => setId(e.target.value)} onBlur={() => setTouched(true)}
-                autoComplete="username" autoFocus inputMode="email" placeholder="ivanov@tpu.ru"
+                autoComplete="username" autoFocus autoCapitalize="none" autoCorrect="off" spellCheck={false} placeholder="ivanov"
                 aria-invalid={!!idErr} aria-describedby={idErr ? 'login-err' : undefined} />
             </span>
-            {idErr && <small id="login-err" className="field__err">{idErr}</small>}
+            {idErr && <small id="login-err" className="field__err" role="alert">{idErr}</small>}
           </label>
 
           <label className="field">Пароль
@@ -96,10 +97,6 @@ export default function LoginPage() {
             {busy ? 'Проверяем…' : <>Войти <Icon name="arrowRight" size={18} /></>}
           </button>
 
-          <div className="auth__foot">
-            <a href="https://help.tpu.ru" target="_blank" rel="noreferrer">Забыли пароль? Помощь ТПУ</a>
-          </div>
-          <p className="muted auth__hint"><small>Пароль не сохраняется в браузере и используется только для входа.</small></p>
         </form>
       </main>
     </div>

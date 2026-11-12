@@ -31,7 +31,7 @@ export async function fetchListingDetails(id: number, pool: Listing[] = MOCK): P
   const base: ListingDetails = {
     ...l,
     sku: `ТПУ-13-${8940 + l.id}`,
-    images: l.image ? [l.image] : [],
+    images: l.images?.length ? l.images : l.image ? [l.image] : [],
     longDescription: l.description,
     pickupNote: `Самовывоз: ${l.dorm}. Могу донести до вахты или до вашей комнаты в этом же общежитии.`,
     moderation: 'Запрещённые правилами проживания предметы отсутствуют.',

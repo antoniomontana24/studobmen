@@ -6,6 +6,7 @@ import { DEFAULT_FILTERS, type Filters, type SortKey } from '../types';
 import { FilterSidebar } from '../components/FilterSidebar';
 import { ListingCard } from '../components/ListingCard';
 import { Pagination } from '../components/Pagination';
+import { Hero } from '../components/Hero';
 
 export default function CatalogPage() {
   const [params] = useSearchParams();
@@ -17,11 +18,12 @@ export default function CatalogPage() {
 
   return (
     <>
-      <div className="layout">
+      {!q && <Hero />}
+      <div className="layout" id="catalog">
         <FilterSidebar filters={filters} onChange={update} onReset={() => setState(DEFAULT_FILTERS)} />
         <section>
           <div className="bar">
-            <h1>Товары в кампусе <small>найдено {total}</small></h1>
+            <h2>Товары в кампусе <small>найдено {total}</small></h2>
             <select value={filters.sort} onChange={(e) => update({ sort: e.target.value as SortKey })} aria-label="Сортировка">
               <option value="new">Сначала свежие</option>
               <option value="cheap">Сначала дешевые</option>

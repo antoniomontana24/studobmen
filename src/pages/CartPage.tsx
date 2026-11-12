@@ -71,7 +71,12 @@ export function CartPage({ onBack }: { onBack: () => void }) {
   return (
     <>
       <nav className="crumbs"><button className="link" onClick={onBack}>Главная</button> / Корзина и оформление</nav>
-      <h1 className="cart-title">Корзина и бронирование <span className="tag">{cart.items.length} товара</span></h1>
+      <div className="cart-head">
+        <h1 className="cart-title">Корзина и бронирование <span className="tag">{cart.items.length} товара</span></h1>
+        <button className="btn btn--outline" onClick={() => cart.removeMany(cart.items.map((i) => i.id))}>
+          <Icon name="trash" size={16} />Очистить корзину
+        </button>
+      </div>
       <p className="muted">Оплата при личной встрече и осмотре в общежитии — никакой предоплаты и скрытых комиссий</p>
 
       <div className="cart-layout">
@@ -97,7 +102,7 @@ export function CartPage({ onBack }: { onBack: () => void }) {
                       <p className="muted">{l.description}</p>
                       <div className="line__actions">
                         <button className="link" onClick={() => favorites.toggle(l)}><Icon name="heart" size={15} filled={favorites.has(l.id)} />{favorites.has(l.id) ? 'В избранном' : 'В избранное'}</button>
-                        <button className="link" onClick={() => cart.remove(l.id)}><Icon name="trash" size={15} />Удалить</button>
+                        <button className="btn-remove" onClick={() => cart.remove(l.id)} aria-label={`Удалить из корзины: ${l.title}`}><Icon name="trash" size={15} />Удалить</button>
                       </div>
                     </div>
                   </div>
@@ -139,11 +144,6 @@ export function CartPage({ onBack }: { onBack: () => void }) {
           <label>Телефон / Telegram для связи<input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+7 (999) 000-00-00" /></label>
           <label>Комментарий продавцам<textarea rows={3} value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Например: подойду к вахте в 18:30, захвачу мелочь без сдачи..." /></label>
           
-              {cart.items.length > 1 && (
-        <button className="link" onClick={() => cart.removeMany(cart.items.map((i) => i.id))}>
-          <Icon name="trash" size={15} />Очистить корзину
-        </button>
-      )}
 
           
           <button className="btn btn--green btn--wide" disabled={!chosen.length || !phone.trim() || status === 'sending'} onClick={submit}>

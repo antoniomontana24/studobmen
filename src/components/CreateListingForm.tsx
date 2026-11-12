@@ -1,17 +1,19 @@
-import { useState } from 'react';
+import { useRef, useState, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CATEGORIES, DORMS } from '../data/mock';
-import { useUser } from '../context/AuthContext';
+import { Icon } from './Icon';
 import { useListingsData } from '../context/ListingsContext';
 import type { Condition, Listing, NewListingInput, OfferType, Status } from '../types';
 
 const OFFERS: [OfferType, string][] = [['sale', 'Продажа'], ['rent', 'Аренда'], ['free', 'Даром']];
 const CONDS: [Condition, string][] = [['new', 'Новое'], ['excellent', 'Отличное'], ['good', 'Хорошее'], ['parts', 'Удовлетворит.']];
 
+const MAX_PHOTOS = 8;
+const MAX_MB = 5;
+
 interface Props { initial?: Listing }
 
 export function CreateListingForm({ initial }: Props) {
-  const user = useUser();
   const ctx = useListingsData();
   const nav = useNavigate();
   const editing = !!initial;
@@ -23,12 +25,36 @@ export function CreateListingForm({ initial }: Props) {
   const [price, setPrice] = useState(initial?.price ?? 0);
   const [condition, setCondition] = useState<Condition>(initial?.condition ?? 'good');
   const [dorm, setDorm] = useState(initial?.dorm ?? DORMS[0]);
-  const [image, setImage] = useState<string | undefined>(initial?.image);
+  const [images, setImages] = useState<string[]>(initial?.images ?? (initial?.image ? [initial.image] : []));
+  const [photoMsg, setPhotoMsg] = useState<string | null>(null);
+  const added = useRef(new Set<string>()); // blob-ссылки, созданные в этой форме
   const [checked, setChecked] = useState(false); // «пройдено AI»
 
-  const onFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0];
-    if (f) setImage(URL.createObjectURL(f));
+  // Несколько файлов за раз: каждый проверяем по типу и размеру, лишнее сверх лимита отбрасываем
+  const onFiles = (e: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    e.target.value = ''; // чтобы один и тот же файл можно было выбрать повторно
+    const notes: string[] = [];
+    const valid = files.filter((f) => {
+      if (!f.type.startsWith('image/')) { notes.push(`«${f.name}» — не изображение`); return false; }
+      if (f.size > MAX_MB * 1024 * 1024) { notes.push(`«${f.name}» больше ${MAX_MB} МБ`); return false; }
+      return true;
+    });
+    const room = MAX_PHOTOS - images.length;
+    if (valid.length > room) notes.push(`Можно загрузить не более ${MAX_PHOTOS} фото`);
+    const urls = valid.slice(0, Math.max(room, 0)).map((f) => {
+      const u = URL.createObjectURL(f);
+      added.current.add(u);
+      return u;
+    });
+    setImages((cur) => [...cur, ...urls]);
+    setPhotoMsg(notes.length ? notes.join('. ') + '.' : null);
+  };
+
+  const removePhoto = (src: string) => {
+    if (added.current.delete(src)) URL.revokeObjectURL(src); // освобождаем память только для своих blob
+    setImages((cur) => cur.filter((s) => s !== src));
+    setPhotoMsg(null);
   };
 
   const submit = (status: Status) => {
@@ -36,7 +62,8 @@ export function CreateListingForm({ initial }: Props) {
       title: title.trim() || 'Без названия',
       description: description.trim(),
       price: offerType === 'free' ? 0 : price,
-      offerType, condition, category, dorm, image, status,
+      offerType, condition, category, dorm, status,
+      image: images[0], images,
     };
     if (editing && initial) ctx.update(initial.id, input);
     else ctx.add(input);
@@ -89,10 +116,26 @@ export function CreateListingForm({ initial }: Props) {
         </fieldset>
       </div>
 
-      <label className="field">Фотографии товара
-        <input type="file" accept="image/*" onChange={onFile} />
-        {image && <img className="form__preview" src={image} alt="Превью" />}
-      </label>
+      <div className="field">Фотографии товара
+        <div className="photos">
+          {images.map((src, n) => (
+            <figure className="photos__item" key={src}>
+              <img src={src} alt={`Фото ${n + 1}`} />
+              {n === 0 && <span className="photos__cover">Обложка</span>}
+              <button type="button" className="photos__rm" onClick={() => removePhoto(src)} aria-label={`Удалить фото ${n + 1}`}><Icon name="x" size={14} /></button>
+            </figure>
+          ))}
+          {images.length < MAX_PHOTOS && (
+            <label className="photos__add">
+              <input type="file" accept="image/*" multiple className="sr-only" onChange={onFiles} />
+              <Icon name="plus" size={22} />
+              <span>Добавить фото</span>
+            </label>
+          )}
+        </div>
+        <small className="muted">{images.length}/{MAX_PHOTOS} · можно выбрать сразу несколько файлов, первое фото станет обложкой</small>
+        {photoMsg && <small className="field__err" role="alert">{photoMsg}</small>}
+      </div>
 
       {checked && (
         <div className="ai-ok"><b>МГНОВЕННО · AI‑проверка ТПУ пройдена успешно</b>
@@ -104,7 +147,6 @@ export function CreateListingForm({ initial }: Props) {
         <button className="btn btn--outline" disabled={checked} onClick={() => submit('draft')}>Сохранить черновик</button>
         <button className="btn btn--green" disabled={checked} onClick={() => submit('moderation')}>Опубликовать в кампусе</button>
       </div>
-      <p className="muted"><small>Публикация доступна авторизованным жителям кампуса ({user.dorm}).</small></p>
     </section>
   );
 }

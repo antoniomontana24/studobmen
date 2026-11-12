@@ -27,7 +27,7 @@ export function Layout() {
   const shortName = second ? `${first} ${second[0]}.` : first;
 
   return (
-    <>
+    <div className="app">
       <header className="header">
         <div className="wrap header__in">
           <Link className="logo" to="/">
@@ -63,6 +63,6 @@ export function Layout() {
       <footer className="footer">
         <div className="wrap">© 2026 ТПУ Маркет. Создано студентами Томского политехнического университета.</div>
       </footer>
-    </>
+    </div>
   );
 }

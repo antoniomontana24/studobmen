@@ -1,6 +1,6 @@
 import { CURRENT_USER } from '../data/mock';
 import type { User } from '../types';
-import { delay } from '../utils/auth';
+import { delay, validateLogin } from '../utils/auth';
 
 export class AuthError extends Error {
   constructor(public kind: 'invalid' | 'unavailable') {
@@ -26,7 +26,7 @@ export class AuthError extends Error {
  */
 export async function loginWithTpu(login: string, password: string): Promise<User> {
   await delay(600);
-  if (!login.trim() || !password) throw new AuthError('invalid');
-  const l = login.trim();
-  return { ...CURRENT_USER, id: l, email: l.includes('@') ? l : `${l}@tpu.ru` };
+  // Повторная проверка формата — на backend она обязательна: проверку в браузере можно обойти
+  if (validateLogin(login) || !password) throw new AuthError('invalid');
+  return { ...CURRENT_USER, id: login, email: `${login}@tpu.ru` };
 }
