@@ -39,11 +39,8 @@ useEffect(() => {
             <h2>Описание от продавца</h2>
             <p>{l.longDescription}</p>
             <div className="seller-card__info"><b>Условия передачи и самовывоз:</b><br />{l.pickupNote}</div>
-            <div className="map__canvas" role="img" aria-label="Точка встречи">
-              <span className="map__dist">Точка встречи: Главный вход / Вахта {l.dorm.split(' (')[0]}</span>
-            </div>
           </section>
-          <Reviews seller={l.seller.name} rating={l.seller.rating} reviews={l.reviews} />
+          <Reviews listingId={l.id} listingTitle={l.title} seller={l.seller.name} rating={l.seller.rating} reviews={l.reviews} />
         </div>
         <aside className="detail__side">
           <BuyBox l={l} />

@@ -26,7 +26,6 @@ export class AuthError extends Error {
  */
 export async function loginWithTpu(login: string, password: string): Promise<User> {
   await delay(600);
-  // Повторная проверка формата — на backend она обязательна: проверку в браузере можно обойти
   if (validateLogin(login) || !password) throw new AuthError('invalid');
   return { ...CURRENT_USER, id: login, email: `${login}@tpu.ru` };
 }

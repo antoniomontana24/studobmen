@@ -40,7 +40,6 @@ export function BuyBox({ l }: { l: ListingDetails }) {
         </button>
       </div>
       <button className="btn btn--dark btn--wide" onClick={() => chat.openForListing(l)}><Icon name="message" size={16} />Написать продавцу в чат ТПУ</button>
-      <div className="buybox__row"><small className="iconline"><Icon name="clock" size={14} />Ответ за 5 минут</small><small className="iconline"><Icon name="shield" size={14} />Гарантия возврата 3 дня</small></div>
     </section>
   );
 }

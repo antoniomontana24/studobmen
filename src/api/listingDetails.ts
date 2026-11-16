@@ -1,7 +1,7 @@
 import { MOCK } from '../data/mock';
 import type { Condition, Listing } from '../types';
 
-export interface Review { id: number; author: string; unit: string; stars: number; text: string; when: string; subject: string }
+export interface Review { id: number; author: string; unit: string; stars: number; text: string; when: string; subject: string; createdAt?: number }
 export interface Spec { label: string; value: string; note: string }
 export interface SellerInfo { program: string; deals: number; reviewsCount: number; emailMasked: string; address: string; since: string }
 export interface ListingDetails extends Listing {
@@ -11,7 +11,6 @@ export interface ListingDetails extends Listing {
 
 const CONDITION_RU: Record<Condition, string> = { new: 'Новое', excellent: 'Отличное', good: 'Хорошее', parts: 'На запчасти' };
 
-// Richer sample data for listing #1 (matches the mockup). The backend will send all of this.
 const RICH: Record<number, Partial<ListingDetails>> = {
   1: {
     longDescription: 'Продаю в связи с выпуском из магистратуры ИШПР. Работает безупречно, быстро разогревает, тарелка крутится без скрипа. Внутреннее покрытие EasyClean чистится обычной салфеткой за пару секунд.',

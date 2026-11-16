@@ -36,6 +36,7 @@ const PATHS = {
   building: <path d="M4 21V5l8-2 8 2v16M9 21v-4h6v4M8 8h2M14 8h2M8 12h2M14 12h2" />,
   gift: <path d="M20 12v9H4v-9M2 7h20v5H2zM12 21V7M12 7H7.5a2.5 2.5 0 1 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 1 0 0-5C13 2 12 7 12 7z" />,
   alert: <><circle cx="12" cy="12" r="9" /><path d="M12 7.5v5.5M12 16.5h.01" /></>,
+  external: <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />,
   rubleCoin: <><circle cx="12" cy="12" r="9" /><path d="M10 17V7h3a2.5 2.5 0 0 1 0 5h-3M8.5 14h5.5" /></>,
 } satisfies Record<string, ReactNode>;
 

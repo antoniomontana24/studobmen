@@ -21,8 +21,8 @@ export interface Listing {
   dorm: string;
   status: Status;
   createdAt: number;
-  image?: string;
-  images?: string[];
+  image?: string;      // обложка (= первое фото), используется в карточках
+  images?: string[];   // все фото объявления
   seller: Seller;
 }
 

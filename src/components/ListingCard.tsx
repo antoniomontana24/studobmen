@@ -17,7 +17,6 @@ function Actions({ l }: { l: Listing }) {
 
   const addLabel = l.offerType === 'free' ? 'Забрать даром' : l.status === 'bookable' ? 'Забронировать' : 'Купить';
 
-  // Одна кнопка переключается: добавить ↔ убрать, прямо из каталога
   const toggle = inCart ? (
     <button
       className={`btn btn--remove ${l.offerType === 'free' ? 'btn--wide' : ''}`}

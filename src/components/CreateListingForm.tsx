@@ -1,6 +1,7 @@
-import { useRef, useState, type ChangeEvent } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CATEGORIES, DORMS } from '../data/mock';
+import { fileToDataUrl } from '../utils/image';
 import { Icon } from './Icon';
 import { useListingsData } from '../context/ListingsContext';
 import type { Condition, Listing, NewListingInput, OfferType, Status } from '../types';
@@ -27,33 +28,36 @@ export function CreateListingForm({ initial }: Props) {
   const [dorm, setDorm] = useState(initial?.dorm ?? DORMS[0]);
   const [images, setImages] = useState<string[]>(initial?.images ?? (initial?.image ? [initial.image] : []));
   const [photoMsg, setPhotoMsg] = useState<string | null>(null);
-  const added = useRef(new Set<string>()); // blob-ссылки, созданные в этой форме
+  const [busyPhotos, setBusyPhotos] = useState(false);
   const [checked, setChecked] = useState(false); // «пройдено AI»
 
-  // Несколько файлов за раз: каждый проверяем по типу и размеру, лишнее сверх лимита отбрасываем
-  const onFiles = (e: ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
+  // Несколько файлов за раз. Каждый проверяем и превращаем в сжатый data-URL (см. utils/image.ts):
+  // blob-ссылки не переживают перезагрузку страницы, из-за чего фото «пропадали» из каталога.
+  const onFiles = async (e: ChangeEvent<HTMLInputElement>) => {
+    const files: File[] = Array.from(e.target.files ?? []);
     e.target.value = ''; // чтобы один и тот же файл можно было выбрать повторно
     const notes: string[] = [];
-    const valid = files.filter((f) => {
+    let valid = files.filter((f) => {
       if (!f.type.startsWith('image/')) { notes.push(`«${f.name}» — не изображение`); return false; }
       if (f.size > MAX_MB * 1024 * 1024) { notes.push(`«${f.name}» больше ${MAX_MB} МБ`); return false; }
       return true;
     });
     const room = MAX_PHOTOS - images.length;
     if (valid.length > room) notes.push(`Можно загрузить не более ${MAX_PHOTOS} фото`);
-    const urls = valid.slice(0, Math.max(room, 0)).map((f) => {
-      const u = URL.createObjectURL(f);
-      added.current.add(u);
-      return u;
-    });
-    setImages((cur) => [...cur, ...urls]);
+    valid = valid.slice(0, Math.max(room, 0));
+    setBusyPhotos(true);
+    const urls: string[] = [];
+    for (const f of valid) {
+      try { urls.push(await fileToDataUrl(f)); }
+      catch { notes.push(`не удалось обработать «${f.name}»`); }
+    }
+    setBusyPhotos(false);
+    setImages((cur) => [...cur, ...urls].slice(0, MAX_PHOTOS));
     setPhotoMsg(notes.length ? notes.join('. ') + '.' : null);
   };
 
-  const removePhoto = (src: string) => {
-    if (added.current.delete(src)) URL.revokeObjectURL(src); // освобождаем память только для своих blob
-    setImages((cur) => cur.filter((s) => s !== src));
+  const removePhoto = (idx: number) => {
+    setImages((cur) => cur.filter((_, i) => i !== idx));
     setPhotoMsg(null);
   };
 
@@ -119,17 +123,17 @@ export function CreateListingForm({ initial }: Props) {
       <div className="field">Фотографии товара
         <div className="photos">
           {images.map((src, n) => (
-            <figure className="photos__item" key={src}>
+            <figure className="photos__item" key={`${n}-${src.length}`}>
               <img src={src} alt={`Фото ${n + 1}`} />
               {n === 0 && <span className="photos__cover">Обложка</span>}
-              <button type="button" className="photos__rm" onClick={() => removePhoto(src)} aria-label={`Удалить фото ${n + 1}`}><Icon name="x" size={14} /></button>
+              <button type="button" className="photos__rm" onClick={() => removePhoto(n)} aria-label={`Удалить фото ${n + 1}`}><Icon name="x" size={14} /></button>
             </figure>
           ))}
           {images.length < MAX_PHOTOS && (
             <label className="photos__add">
-              <input type="file" accept="image/*" multiple className="sr-only" onChange={onFiles} />
+              <input type="file" accept="image/*" multiple className="sr-only" onChange={onFiles} disabled={busyPhotos} />
               <Icon name="plus" size={22} />
-              <span>Добавить фото</span>
+              <span>{busyPhotos ? 'Обработка…' : 'Добавить фото'}</span>
             </label>
           )}
         </div>

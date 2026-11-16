@@ -1,15 +1,12 @@
 import { useState, type FormEvent } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { AuthError } from '../api/auth';
+import { CampusPhoto } from '../components/CampusPhoto';
 import { Icon } from '../components/Icon';
 import { useAuth } from '../context/AuthContext';
 import { validateLogin, validatePassword } from '../utils/auth';
 
-const FEATURES = [
-  { icon: 'shield', text: 'Вход только для студентов и сотрудников ТПУ' },
-  { icon: 'pin', text: 'Передача вещей прямо в вашем общежитии' },
-  { icon: 'rubleCoin', text: 'Оплата при встрече — без предоплат и комиссий' },
-] as const;
+
 
 export default function LoginPage() {
   const { user, login } = useAuth();
@@ -26,7 +23,6 @@ export default function LoginPage() {
 
   if (user) return <Navigate to={from} replace />;
 
-  // Ошибка логина показывается сразу, как только в поле что-то введено (или после отправки)
   const idErr = touched || id ? validateLogin(id) : null;
   const pwErr = touched ? validatePassword(password) : null;
 
@@ -50,12 +46,13 @@ export default function LoginPage() {
   return (
     <div className="auth">
       <aside className="auth__brand">
+        {}
+        <CampusPhoto file="login-campus.jpg" />
+        <div className="auth__shade" />
         <div className="logo logo--inv"><span className="logo__mark"><Icon name="swap" size={20} /></span><span className="logo__text"><b>СТУДОБМЕН</b><small>Маркетплейс общежитий ТПУ</small></span></div>
         <h1>Вещи, которые нужны соседям по общежитию</h1>
         <p>Продавайте то, чем больше не пользуетесь, и находите нужное рядом — на своём этаже или в соседнем корпусе.</p>
-        <ul className="auth__ticks">
-          {FEATURES.map((f) => <li key={f.text}><Icon name={f.icon} size={20} />{f.text}</li>)}
-        </ul>
+      
       </aside>
 
       <main className="auth__main">

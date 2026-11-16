@@ -7,7 +7,6 @@ import { useListings } from '../hooks/useListings';
 import { DEFAULT_FILTERS, type Listing } from '../types';
 import { money } from '../utils/format';
 import { SafetyRules } from '../components/SafetyRules';
-import { MapBlock } from '../components/MapBlock';
 import { useBookings } from '../context/BookingsContext';
 import { useFavorites } from '../context/FavoriteContext';
 
@@ -21,6 +20,10 @@ const POINTS = [
 type Meeting = { point: string; interval: string };
 const DEFAULT_MEETING: Meeting = { point: 'hall', interval: 'Сегодня после пар (18:30 – 20:00)' };
 
+const pluralItems = (n: number) =>
+  n % 10 === 1 && n % 100 !== 11 ? 'товар'
+  : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? 'товара' : 'товаров';
+
 export function CartPage({ onBack }: { onBack: () => void }) {
   const user = useUser();
   const cart = useCart();
@@ -31,7 +34,6 @@ export function CartPage({ onBack }: { onBack: () => void }) {
   const [comment, setComment] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'done' | 'error'>('idle');
 
-  // One block per seller, as in the mockup
   const groups = useMemo(() => {
     const m = new Map<string, Listing[]>();
     cart.items.forEach((i) => m.set(i.seller.name, [...(m.get(i.seller.name) ?? []), i]));
@@ -72,7 +74,7 @@ export function CartPage({ onBack }: { onBack: () => void }) {
     <>
       <nav className="crumbs"><button className="link" onClick={onBack}>Главная</button> / Корзина и оформление</nav>
       <div className="cart-head">
-        <h1 className="cart-title">Корзина и бронирование <span className="tag">{cart.items.length} товара</span></h1>
+        <h1 className="cart-title">Корзина и бронирование <span className="tag">{cart.items.length} {pluralItems(cart.items.length)}</span></h1>
         <button className="btn btn--outline" onClick={() => cart.removeMany(cart.items.map((i) => i.id))}>
           <Icon name="trash" size={16} />Очистить корзину
         </button>
@@ -88,9 +90,11 @@ export function CartPage({ onBack }: { onBack: () => void }) {
               <section className="group" key={seller}>
                 <header className="group__head">
                   <i className="avatar">{seller[0]}</i>
-                  <div><strong>{seller}</strong> <span className="tag">{s.institute}</span><br />
-                    <Rating value={s.rating} suffix={<small>({s.reviews} сделок) · {lines[0].dorm}</small>} /></div>
-                  <button className="btn btn--outline"><Icon name="message" size={16} />Написать</button>
+                  <div className="group__who">
+                    <div className="group__name"><strong>{seller}</strong><span className="tag">{s.institute}</span></div>
+                    <div className="group__meta"><Rating value={s.rating} suffix={<small>({s.reviews} сделок)</small>} /><small>{lines[0].dorm}</small></div>
+                  </div>
+                  <button className="btn btn--outline" ><Icon name="message" size={16} />Написать</button>
                 </header>
 
                 {lines.map((l) => (
@@ -153,7 +157,6 @@ export function CartPage({ onBack }: { onBack: () => void }) {
           <p className="muted"><small>Продавцы получат уведомление. Вещи будут заморожены за вами на 24 часа.</small></p>
           <button className="link" onClick={onBack}><Icon name="arrowLeft" size={15} />Вернуться к покупкам в каталоге</button>
         </aside>
-        <MapBlock dorms={dorms} />
         </div>
       </div>
 

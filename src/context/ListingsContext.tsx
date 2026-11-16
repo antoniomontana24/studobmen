@@ -20,8 +20,23 @@ const Ctx = createContext<ListingsCtx | null>(null);
 const KEY = 'studobmen.listingsDelta';
 
 function load(): Delta {
-  try { return JSON.parse(localStorage.getItem(KEY) ?? '{"created":[],"removedIds":[]}'); }
-  catch { return { created: [], removedIds: [] }; }
+  try {
+    const d: Delta = JSON.parse(localStorage.getItem(KEY) ?? '{"created":[],"removedIds":[]}');
+    // blob:-ссылки из старых версий после перезагрузки мертвы — убираем, чтобы показывалась заглушка, а не пустой квадрат
+    d.created = d.created.map((l) => {
+      const images = (l.images ?? (l.image ? [l.image] : [])).filter((u) => !u.startsWith('blob:'));
+      return { ...l, images, image: images[0] };
+    });
+    return d;
+  } catch { return { created: [], removedIds: [] }; }
+}
+
+/** localStorage ограничен (~5 МБ). Если фото не помещаются — сохраняем фото только у самых свежих объявлений. */
+function persist(d: Delta) {
+  for (const keep of [d.created.length, 3, 1, 0]) {
+    const slim = { ...d, created: d.created.map((l, i) => (i < keep ? l : { ...l, image: undefined, images: [] })) };
+    try { localStorage.setItem(KEY, JSON.stringify(slim)); return; } catch { /* пробуем меньше фото */ }
+  }
 }
 
 export function ListingsProvider({ children }: { children: ReactNode }) {
@@ -30,7 +45,7 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
   const [delta, setDelta] = useState<Delta>(load);
 
   useEffect(() => {
-    try { localStorage.setItem(KEY, JSON.stringify(delta)); } catch { /* noop */ }
+    persist(delta);
   }, [delta]);
 
   const all = useMemo<Listing[]>(() => {
